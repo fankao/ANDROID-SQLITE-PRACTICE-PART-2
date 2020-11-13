@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ANDROID SQLITE PRACTICE PART 2</string>
+    <string name="text_location">%1$d. %2$s</string>
+</resources>
