@@ -15,6 +15,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.androidsqlitepracticepart2.room.LocationDatabase;
+import com.example.androidsqlitepracticepart2.room.Locations;
+
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,9 +25,10 @@ public class MainActivity extends AppCompatActivity {
     Button btnSave, btnCancel;
     RecyclerView recyclerLocation;
     LocationAdapter adapter;
-    List<Location> locations;
+    List<Locations> locations;
     DBManager dbManager;
-    private Location locationSelected;
+    LocationDatabase mLocationDatabase;
+    private Locations locationSelected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         recyclerLocation = findViewById(R.id.recycler_location);
         recyclerLocation.setLayoutManager(new LinearLayoutManager(this));
-        dbManager = new DBManager(this);
+        mLocationDatabase = LocationDatabase.getAppDatabase(this);
         getListLocations();
         adapter = new LocationAdapter(this, locations);
         recyclerLocation.setAdapter(adapter);
@@ -79,16 +83,12 @@ public class MainActivity extends AppCompatActivity {
                 String locationName = edtLocation.getText().toString();
                 if (locationSelected != null) {
                     locationSelected.setName(locationName);
-                    boolean updateSuccessfully = dbManager.updateLocation(locationSelected);
-                    if (!updateSuccessfully) {
-                        showNotification("Không cập nhật được địa điểm");
-                        return;
-                    }
+                    mLocationDatabase.mLocationDAO().update(locationSelected);
                     locationSelected = null;
                     showNotification("Cập nhật địa điểm thành công");
                 } else {
-                    Location location = new Location(locationName);
-                    dbManager.addNewLocation(location);
+                    Locations location = new Locations(locationName);
+                    mLocationDatabase.mLocationDAO().create(location);
                     showNotification("Đã thêm mới địa điểm "+locationName);
 
                 }
@@ -115,17 +115,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void deleteLocation(Location location) {
+    private void deleteLocation(Locations location) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setTitle("Xóa")
                 .setMessage("Xác nhận xóa " + location.getName())
                 .setPositiveButton("Đồng ý", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if (!dbManager.deleteLocation(location)) {
-                            showNotification("Không xóa được " + location.getName());
-                            return;
-                        }
+                        mLocationDatabase.mLocationDAO().delete(location);
                         getListLocations();
                         showNotification("Xóa " + location.getName() + " thành công");
                         dialogInterface.dismiss();
@@ -144,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getListLocations() {
-        locations = dbManager.getLocations();
+        locations = mLocationDatabase.mLocationDAO().getAll();
         if (adapter != null) {
             adapter.setLocations(locations);
         }

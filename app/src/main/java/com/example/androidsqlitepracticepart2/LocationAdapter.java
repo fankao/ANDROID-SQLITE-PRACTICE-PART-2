@@ -12,16 +12,18 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.androidsqlitepracticepart2.room.Locations;
+
 public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.LocationViewHolder> {
     private Context context;
-    private List<Location> locations;
+    private List<Locations> locations;
     private ItemClickListener itemClickListener;
 
     public  interface  ItemClickListener{
         void onClick(View view, int pos);
     }
 
-    public LocationAdapter(Context context, List<Location> locations) {
+    public LocationAdapter(Context context, List<Locations> locations) {
         this.context = context;
         this.locations = locations;
     }
@@ -44,7 +46,7 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.Locati
         return locations.size();
     }
 
-    public void setLocations(List<Location> locations) {
+    public void setLocations(List<Locations> locations) {
         this.locations = locations;
         this.notifyDataSetChanged();
     }
